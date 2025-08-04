@@ -1,0 +1,13 @@
+# Railway configuration for Confessly Backend
+# Deploy this as the backend service
+
+[build]
+builder = "dockerfile"
+dockerfile = "server/Dockerfile.prod"
+
+[deploy]
+startCommand = "node index.js"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10 
