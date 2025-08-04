@@ -3,8 +3,7 @@
 
 [build]
 builder = "dockerfile"
-dockerfile = "server/Dockerfile.prod"
-context = "server"
+dockerfile = "Dockerfile.server"
 
 [deploy]
 startCommand = "node index.js"
