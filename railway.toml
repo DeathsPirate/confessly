@@ -7,4 +7,8 @@ builder = "nixpacks"
 [deploy]
 startCommand = "npm run deploy"
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10 
+restartPolicyMaxRetries = 10
+
+# Ensure proper build order
+[build.steps]
+preBuild = "npm run install-all" 

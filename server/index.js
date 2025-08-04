@@ -82,8 +82,23 @@ if (process.env.NODE_ENV === 'production') {
   const clientBuildPath = path.join(__dirname, '../client/build');
   const indexPath = path.join(clientBuildPath, 'index.html');
   
+  console.log('Production mode detected');
+  console.log('Looking for React build at:', clientBuildPath);
+  console.log('Current directory:', __dirname);
+  console.log('Build directory exists:', require('fs').existsSync(clientBuildPath));
+  
+  // List contents of parent directory
+  try {
+    const parentDir = path.join(__dirname, '..');
+    const parentContents = require('fs').readdirSync(parentDir);
+    console.log('Parent directory contents:', parentContents);
+  } catch (error) {
+    console.log('Error reading parent directory:', error.message);
+  }
+  
   // Check if React build exists
   if (require('fs').existsSync(clientBuildPath)) {
+    console.log('React build found! Serving full application...');
     // Serve static files from the React build
     app.use(express.static(clientBuildPath));
     
@@ -94,6 +109,14 @@ if (process.env.NODE_ENV === 'production') {
   } else {
     // React build doesn't exist, serve API only
     console.log('React build not found, serving API only');
+    console.log('Available directories in current location:');
+    try {
+      const currentContents = require('fs').readdirSync(__dirname);
+      console.log('Current directory contents:', currentContents);
+    } catch (error) {
+      console.log('Error reading current directory:', error.message);
+    }
+    
     app.get('/', (req, res) => {
       res.json({ 
         message: 'Confessly API is running',
