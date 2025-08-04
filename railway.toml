@@ -1,10 +1,10 @@
-# Railway configuration for Confessly Backend
-# Deploy this as the backend service
+# Railway configuration for Confessly (Full Stack)
+# Deploy this as a single service with both frontend and backend
 
 [build]
 builder = "nixpacks"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "npm run deploy"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10 
