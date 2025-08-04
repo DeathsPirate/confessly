@@ -2,10 +2,9 @@
 # Deploy this as the backend service
 
 [build]
-builder = "dockerfile"
-dockerfile = "Dockerfile.server"
+builder = "nixpacks"
 
 [deploy]
-startCommand = "node index.js"
+startCommand = "npm start"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10 
