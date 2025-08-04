@@ -1,0 +1,20 @@
+{
+  "name": "confessly",
+  "version": "1.0.0",
+  "description": "A social web app for anonymous confessions with karma system and moderation",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "start": "cd server && npm start"
+  },
+  "keywords": ["confessions", "social", "anonymous", "karma", "moderation"],
+  "author": "Confessly Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
