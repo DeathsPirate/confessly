@@ -79,13 +79,41 @@ app.get('/api/health', (req, res) => {
 
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve static files from the React build
-  app.use(express.static(path.join(__dirname, '../client/build')));
+  const clientBuildPath = path.join(__dirname, '../client/build');
+  const indexPath = path.join(clientBuildPath, 'index.html');
   
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  });
+  // Check if React build exists
+  if (require('fs').existsSync(clientBuildPath)) {
+    // Serve static files from the React build
+    app.use(express.static(clientBuildPath));
+    
+    // Handle React routing, return all requests to React app
+    app.get('*', (req, res) => {
+      res.sendFile(indexPath);
+    });
+  } else {
+    // React build doesn't exist, serve API only
+    console.log('React build not found, serving API only');
+    app.get('/', (req, res) => {
+      res.json({ 
+        message: 'Confessly API is running',
+        status: 'API only mode',
+        endpoints: {
+          health: '/api/health',
+          auth: '/api/auth',
+          confessions: '/api/confessions',
+          comments: '/api/comments',
+          user: '/api/user',
+          moderation: '/api/moderation'
+        }
+      });
+    });
+    
+    // 404 handler for API-only mode
+    app.use('*', (req, res) => {
+      res.status(404).json({ error: 'Route not found' });
+    });
+  }
 } else {
   // 404 handler for development
   app.use('*', (req, res) => {
