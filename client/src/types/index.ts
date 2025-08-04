@@ -2,8 +2,8 @@ export interface User {
   id: number;
   email: string;
   handle: string;
-  bio: string;
-  favorite_snack: string;
+  bio?: string;
+  favorite_snack?: string;
   karma: number;
   is_admin: boolean;
   created_at: string;

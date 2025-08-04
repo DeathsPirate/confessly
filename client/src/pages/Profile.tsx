@@ -102,11 +102,11 @@ const Profile: React.FC = () => {
               <div>
                 <h3 className="text-sm font-medium text-gray-700">Karma</h3>
                 <div className="flex items-center space-x-2">
-                  <Award className={`${user?.karma >= 100 ? 'text-green-600' : 'text-gray-400'}`} size={20} />
-                  <span className={`font-semibold ${user?.karma >= 100 ? 'text-green-600' : 'text-gray-900'}`}>
-                    {user?.karma}
+                  <Award className={`${(user?.karma ?? 0) >= 100 ? 'text-green-600' : 'text-gray-400'}`} size={20} />
+                  <span className={`font-semibold ${(user?.karma ?? 0) >= 100 ? 'text-green-600' : 'text-gray-900'}`}>
+                    {user?.karma ?? 0}
                   </span>
-                  {user?.karma >= 100 && (
+                  {(user?.karma ?? 0) >= 100 && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
                       Moderator
                     </span>
