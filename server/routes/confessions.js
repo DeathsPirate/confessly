@@ -111,9 +111,13 @@ router.get('/', [
           }
 
           // Add full URL to image_url if it exists
+          const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+          const host = req.headers.host || 'localhost:5000';
+          const baseUrl = `${protocol}://${host}`;
+          
           const confessionsWithFullUrls = confessions.map(confession => ({
             ...confession,
-            image_url: confession.image_url ? `http://localhost:5000${confession.image_url}` : null
+            image_url: confession.image_url ? `${baseUrl}${confession.image_url}` : null
           }));
 
           res.json({
@@ -158,9 +162,13 @@ router.get('/:id', optionalAuth, (req, res) => {
       }
 
       // Add full URL to image_url if it exists
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+      const host = req.headers.host || 'localhost:5000';
+      const baseUrl = `${protocol}://${host}`;
+      
       const confessionWithFullUrl = {
         ...confession,
-        image_url: confession.image_url ? `http://localhost:5000${confession.image_url}` : null
+        image_url: confession.image_url ? `${baseUrl}${confession.image_url}` : null
       };
 
       res.json({ confession: confessionWithFullUrl });
