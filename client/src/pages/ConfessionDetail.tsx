@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ThumbsUp, ThumbsDown, Flag, Clock, MapPin, Tag } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,23 +18,16 @@ const ConfessionDetail: React.FC = () => {
   const [flagReason, setFlagReason] = useState('');
   const [flagging, setFlagging] = useState(false);
 
-  useEffect(() => {
-    if (id) {
-      loadConfession();
-      loadComments();
-    }
-  }, [id, loadConfession, loadComments]);
-
-  const loadConfession = async () => {
+  const loadConfession = useCallback(async () => {
     try {
       const response = await confessionsAPI.getConfession(parseInt(id!));
       setConfession(response.confession);
     } catch (error) {
       console.error('Error loading confession:', error);
     }
-  };
+  }, [id]);
 
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       const response = await commentsAPI.getComments(parseInt(id!));
       setComments(response.comments);
@@ -43,7 +36,14 @@ const ConfessionDetail: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      loadConfession();
+      loadComments();
+    }
+  }, [id, loadConfession, loadComments]);
 
   const handleVote = async (voteType: 'upvote' | 'downvote') => {
     if (!user) return;

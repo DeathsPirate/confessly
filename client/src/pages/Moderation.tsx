@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Shield, AlertTriangle, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { moderationAPI } from '../utils/api';
 import { Flag, ModerationStats } from '../types';
@@ -15,12 +15,7 @@ const Moderation: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'pending' | 'resolved' | 'dismissed' | ''>('');
   const [contentTypeFilter, setContentTypeFilter] = useState<'confession' | 'comment' | ''>('');
 
-  useEffect(() => {
-    loadFlags();
-    loadStats();
-  }, [currentPage, statusFilter, contentTypeFilter, loadFlags, loadStats]);
-
-  const loadFlags = async () => {
+  const loadFlags = useCallback(async () => {
     try {
       setLoading(true);
       const params: any = {
@@ -41,16 +36,21 @@ const Moderation: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, statusFilter, contentTypeFilter]);
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const response = await moderationAPI.getStats();
       setStats(response.stats);
     } catch (error) {
       console.error('Error loading stats:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadFlags();
+    loadStats();
+  }, [loadFlags, loadStats]);
 
   const handleResolveFlag = async (flagId: number, action: 'delete' | 'dismiss') => {
     try {

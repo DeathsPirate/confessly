@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,11 +21,7 @@ const Home: React.FC = () => {
 
   const moods = ['Happy', 'Sad', 'Excited', 'Guilty', 'Regretful', 'Annoyed', 'Embarrassed', 'Proud'];
 
-  useEffect(() => {
-    loadConfessions();
-  }, [currentPage, searchTerm, moodFilter, locationFilter, loadConfessions]);
-
-  const loadConfessions = async () => {
+  const loadConfessions = useCallback(async () => {
     try {
       setLoading(true);
       const params: any = {
@@ -47,7 +43,11 @@ const Home: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, searchTerm, moodFilter, locationFilter]);
+
+  useEffect(() => {
+    loadConfessions();
+  }, [loadConfessions]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
