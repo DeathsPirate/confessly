@@ -18,7 +18,7 @@ const Moderation: React.FC = () => {
   useEffect(() => {
     loadFlags();
     loadStats();
-  }, [currentPage, statusFilter, contentTypeFilter]);
+  }, [currentPage, statusFilter, contentTypeFilter, loadFlags, loadStats]);
 
   const loadFlags = async () => {
     try {

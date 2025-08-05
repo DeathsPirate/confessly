@@ -23,7 +23,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     loadConfessions();
-  }, [currentPage, searchTerm, moodFilter, locationFilter]);
+  }, [currentPage, searchTerm, moodFilter, locationFilter, loadConfessions]);
 
   const loadConfessions = async () => {
     try {

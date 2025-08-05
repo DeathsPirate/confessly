@@ -23,7 +23,7 @@ const ConfessionDetail: React.FC = () => {
       loadConfession();
       loadComments();
     }
-  }, [id]);
+  }, [id, loadConfession, loadComments]);
 
   const loadConfession = async () => {
     try {
