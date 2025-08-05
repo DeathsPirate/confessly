@@ -181,6 +181,15 @@ app.use((err, req, res, next) => {
 // Initialize database and start server
 async function startServer() {
   try {
+    // Ensure uploads directory exists
+    const uploadsPath = path.join(__dirname, 'uploads');
+    if (!require('fs').existsSync(uploadsPath)) {
+      require('fs').mkdirSync(uploadsPath, { recursive: true });
+      console.log('Created uploads directory:', uploadsPath);
+    } else {
+      console.log('Uploads directory already exists:', uploadsPath);
+    }
+    
     await initDatabase();
     console.log('Database initialized successfully');
     
