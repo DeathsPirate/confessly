@@ -49,6 +49,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static files with CORS headers for images
 app.use('/uploads', (req, res, next) => {
+  // Debug logging for image requests
+  console.log('Image request:', req.url);
+  console.log('Uploads directory exists:', require('fs').existsSync(path.join(__dirname, 'uploads')));
+  
   // Allow specific origins for images
   const origin = req.headers.origin;
   if (origin && (origin.includes('localhost:3000') || origin.includes('localhost:3003'))) {
@@ -78,6 +82,24 @@ app.use('/api/user', userRoutes);
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Debug endpoint to check uploads directory
+app.get('/api/debug/uploads', (req, res) => {
+  const uploadsPath = path.join(__dirname, 'uploads');
+  try {
+    const exists = require('fs').existsSync(uploadsPath);
+    const files = exists ? require('fs').readdirSync(uploadsPath) : [];
+    res.json({
+      uploadsPath,
+      exists,
+      files,
+      currentDir: __dirname,
+      currentDirContents: require('fs').readdirSync(__dirname)
+    });
+  } catch (error) {
+    res.json({ error: error.message, uploadsPath, currentDir: __dirname });
+  }
 });
 
 // Serve React app in production
