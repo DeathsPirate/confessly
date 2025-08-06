@@ -7,9 +7,4 @@ builder = "nixpacks"
 [deploy]
 startCommand = "npm run deploy"
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10
-
-# Persistent volume for uploaded files
-[[deploy.volumes]]
-source = "uploads"
-target = "/app/server/uploads" 
+restartPolicyMaxRetries = 10 

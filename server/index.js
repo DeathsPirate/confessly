@@ -51,7 +51,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', (req, res, next) => {
   // Debug logging for image requests
   console.log('Image request:', req.url);
-  console.log('Uploads directory exists:', require('fs').existsSync(path.join(__dirname, 'uploads')));
+  const uploadsPath = process.env.UPLOAD_PATH || path.join(__dirname, 'uploads');
+  console.log('Uploads directory exists:', require('fs').existsSync(uploadsPath));
+  console.log('Uploads directory path:', uploadsPath);
   
   // Allow specific origins for images
   const origin = req.headers.origin;
@@ -70,7 +72,7 @@ app.use('/uploads', (req, res, next) => {
   }
   
   next();
-}, express.static(path.join(__dirname, 'uploads')));
+}, express.static(process.env.UPLOAD_PATH || path.join(__dirname, 'uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -86,7 +88,7 @@ app.get('/api/health', (req, res) => {
 
 // Debug endpoint to check uploads directory
 app.get('/api/debug/uploads', (req, res) => {
-  const uploadsPath = path.join(__dirname, 'uploads');
+  const uploadsPath = process.env.UPLOAD_PATH || path.join(__dirname, 'uploads');
   try {
     const exists = require('fs').existsSync(uploadsPath);
     const files = exists ? require('fs').readdirSync(uploadsPath) : [];
@@ -95,7 +97,8 @@ app.get('/api/debug/uploads', (req, res) => {
       exists,
       files,
       currentDir: __dirname,
-      currentDirContents: require('fs').readdirSync(__dirname)
+      currentDirContents: require('fs').readdirSync(__dirname),
+      uploadPathEnv: process.env.UPLOAD_PATH
     });
   } catch (error) {
     res.json({ error: error.message, uploadsPath, currentDir: __dirname });
@@ -181,13 +184,23 @@ app.use((err, req, res, next) => {
 // Initialize database and start server
 async function startServer() {
   try {
-    // Ensure uploads directory exists
-    const uploadsPath = path.join(__dirname, 'uploads');
+    // Ensure uploads directory exists - use a more persistent location
+    const uploadsPath = process.env.UPLOAD_PATH || path.join(__dirname, 'uploads');
     if (!require('fs').existsSync(uploadsPath)) {
       require('fs').mkdirSync(uploadsPath, { recursive: true });
       console.log('Created uploads directory:', uploadsPath);
     } else {
       console.log('Uploads directory already exists:', uploadsPath);
+    }
+    
+    // Test write permissions
+    try {
+      const testFile = path.join(uploadsPath, 'test.txt');
+      require('fs').writeFileSync(testFile, 'test');
+      require('fs').unlinkSync(testFile);
+      console.log('Uploads directory is writable');
+    } catch (writeError) {
+      console.error('Warning: Uploads directory is not writable:', writeError.message);
     }
     
     await initDatabase();
@@ -196,6 +209,7 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`🚀 Confessly server running on port ${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`📁 Uploads directory: ${uploadsPath}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
