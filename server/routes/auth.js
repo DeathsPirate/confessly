@@ -242,4 +242,72 @@ router.put('/profile', [
   }
 });
 
+// Create admin account (first-time setup)
+router.post('/create-admin', (req, res) => {
+  const { email, password, handle, adminSecret } = req.body;
+  
+  // Check admin secret (you should set this in environment variables)
+  const requiredSecret = process.env.ADMIN_SECRET || 'confessly-admin-2024';
+  if (adminSecret !== requiredSecret) {
+    return res.status(403).json({ error: 'Invalid admin secret' });
+  }
+  
+  // Validate input
+  if (!email || !password || !handle) {
+    return res.status(400).json({ error: 'Email, password, and handle are required' });
+  }
+  
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  }
+  
+  const database = getDatabase();
+  
+  // Check if admin already exists
+  database.get('SELECT id FROM users WHERE is_admin = 1', (err, admin) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    if (admin) {
+      return res.status(400).json({ error: 'Admin account already exists' });
+    }
+    
+    // Check if email already exists
+    database.get('SELECT id FROM users WHERE email = ?', [email], (err, user) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      if (user) {
+        return res.status(400).json({ error: 'Email already registered' });
+      }
+      
+      // Hash password
+      bcrypt.hash(password, 10, (err, hashedPassword) => {
+        if (err) {
+          return res.status(500).json({ error: 'Password hashing error' });
+        }
+        
+        // Create admin user
+        database.run(
+          `INSERT INTO users (email, password, handle, bio, favorite_snack, karma, is_admin)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [email, hashedPassword, handle, 'Admin account', 'Admin snacks', 1000, true],
+          function(err) {
+            if (err) {
+              return res.status(500).json({ error: 'Failed to create admin account' });
+            }
+            
+            res.status(201).json({ 
+              message: 'Admin account created successfully',
+              user_id: this.lastID
+            });
+          }
+        );
+      });
+    });
+  });
+});
+
 module.exports = router; 
