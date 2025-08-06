@@ -310,4 +310,47 @@ router.post('/create-admin', (req, res) => {
   });
 });
 
+// Debug endpoint to check admin accounts (remove in production)
+router.get('/debug/admins', (req, res) => {
+  const database = getDatabase();
+  
+  database.all('SELECT id, email, handle, is_admin, karma FROM users WHERE is_admin = 1', (err, admins) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json({ 
+      adminCount: admins.length,
+      admins: admins.map(admin => ({
+        id: admin.id,
+        email: admin.email,
+        handle: admin.handle,
+        is_admin: admin.is_admin,
+        karma: admin.karma
+      }))
+    });
+  });
+});
+
+// Reset admin accounts (for development/testing - remove in production)
+router.post('/reset-admins', (req, res) => {
+  const { adminSecret } = req.body;
+  
+  // Check admin secret
+  const requiredSecret = process.env.ADMIN_SECRET || 'confessly-admin-2024';
+  if (adminSecret !== requiredSecret) {
+    return res.status(403).json({ error: 'Invalid admin secret' });
+  }
+  
+  const database = getDatabase();
+  
+  database.run('UPDATE users SET is_admin = 0', (err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json({ message: 'All admin accounts have been reset. You can now create a new admin account.' });
+  });
+});
+
 module.exports = router; 
